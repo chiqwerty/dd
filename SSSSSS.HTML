@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Remind of Him — Vinyl Playlist</title>
+  <style>
+    :root{
+      --bg:#f6f2ef;
+      --card:#fff8f5;
+      --muted:#8b8b8b;
+      --accent:#d9c7c0;
+      --glass: rgba(255,255,255,0.6);
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:linear-gradient(180deg,var(--bg),#efe6e3);display:flex;align-items:center;justify-content:center;padding:32px}
+
+    .player{width:980px;max-width:96vw;background:var(--card);border-radius:18px;box-shadow:0 10px 30px rgba(20,20,20,.08);display:grid;grid-template-columns:420px 1fr;gap:22px;padding:28px}
+
+    .vinyl-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;position:relative}
+    .vinyl{width:320px;height:320px;border-radius:50%;background:
+        radial-gradient(circle at 50% 50%, rgba(0,0,0,0.12) 2%, transparent 2.2%),
+        repeating-radial-gradient(circle,#111 0 2px, rgba(0,0,0,.04) 2px 6px),
+        linear-gradient(180deg,#000 0%, #0b0b0b 100%);
+      position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;transform:rotate(0deg)}
+    .vinyl.playing{animation:spin 3s linear infinite}
+    @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
+    .label{width:120px;height:120px;border-radius:50%;background:var(--glass);display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:12px}
+    .label h4{margin:0;font-size:14px}
+    .label p{margin:4px 0 0 0;font-size:12px;color:var(--muted)}
+
+    .needle{width:120px;height:6px;background:#6b5b59;position:absolute;left:300px;top:40px;transform:rotate(-40deg);transform-origin:left center;border-radius:6px;transition:transform 0.5s ease}
+    .needle.playing{transform:rotate(0deg)}
+    .needle:after{content:'';position:absolute;right:-8px;top:-6px;width:18px;height:18px;background:#2e2b2a;border-radius:3px}
+
+    .controls{display:flex;flex-direction:column;gap:12px;align-items:center}
+    .track-info{text-align:center}
+    .track-title{font-weight:600;font-size:18px}
+    .track-artist{font-size:13px;color:var(--muted)}
+
+    .buttons{display:flex;gap:12px;align-items:center}
+    .btn{background:transparent;border:1px solid rgba(0,0,0,0.06);padding:10px 14px;border-radius:10px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+    .btn:active{transform:translateY(1px)}
+
+    .progress{width:100%;height:8px;background:rgba(0,0,0,.06);border-radius:10px;overflow:hidden}
+    .progress > i{display:block;height:8px;background:linear-gradient(90deg,#f3b7c1,#bfa5ff);width:0%}
+    .time{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px}
+
+    .playlist{padding:12px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(255,255,255,0.5));height:100%;display:flex;flex-direction:column}
+    .playlist h3{margin:0 0 8px 0}
+    .track-list{overflow:auto;padding-right:6px;flex:1}
+    .track-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;cursor:pointer}
+    .track-item:hover{background:rgba(0,0,0,0.02)}
+    .track-item.active{background:linear-gradient(90deg,#fff0f2,#f7f3ff)}
+    .thumb{width:48px;height:48px;border-radius:6px;background:linear-gradient(135deg,#e6d7d2,#dcd1ec);display:flex;align-items:center;justify-content:center;font-weight:600}
+    .meta{flex:1}
+    .meta b{display:block}
+    .meta span{display:block;font-size:13px;color:var(--muted)}
+
+    .lyrics-box{margin-top:14px;background:rgba(255,255,255,0.65);border-radius:10px;padding:12px;min-height:110px;display:flex;flex-direction:column;justify-content:center}
+    .lyrics-line{font-size:14px;text-align:center;color:#3b3b3b;transition:opacity 0.3s ease}
+
+    @media (max-width:880px){.player{grid-template-columns:1fr;gap:12px}.vinyl{width:260px;height:260px}.label{width:96px;height:96px}}
+  </style>
+</head>
+<body>
+  <div class="player">
+    <div class="vinyl-wrap">
+      <div class="vinyl" id="vinyl">
+        <div class="label" id="label">
+          <h4 id="label-title">Remind of Him</h4>
+          <p id="label-artist">Aesthetic Vinyl Playlist</p>
+        </div>
+      </div>
+      <div class="needle" id="needle"></div>
+
+      <div class="controls" style="width:100%">
+        <div class="track-info">
+          <div class="track-title" id="track-title">--</div>
+          <div class="track-artist" id="track-artist">--</div>
+        </div>
+
+        <div class="buttons" style="justify-content:center">
+          <button class="btn" id="prevBtn">⟨</button>
+          <button class="btn" id="playBtn">▶︎</button>
+          <button class="btn" id="nextBtn">⟩</button>
+          <div style="width:12px"></div>
+          <button class="btn" id="shuffleBtn">Shuffle</button>
+        </div>
+
+        <div style="width:100%;margin-top:12px">
+          <div class="progress" id="progressBar"><i></i></div>
+          <div class="time"><small id="currentTime">0:00</small><small id="duration">0:00</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="playlist">
+      <h3>Playlist — Remind of Him</h3>
+      <div class="track-list" id="trackList"></div>
+
+      <div class="lyrics-box" id="lyricsBox">
+        <div class="lyrics-line" id="lyricsLine">No lyrics loaded.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tracks = [
+      { title: 'Cloud 9', artist:'Beach Bunny', file: 'audio/cloud9.mp3', cover: '', lyrics: [
+        { time: 0, line: "I don't wanna seem the way I do" },
+        { time: 8, line: "But I'm confident when I'm with you" },
+        { time: 15, line: "Lately all I feel is bad and bruised" },
+        { time: 23, line: "Tired of tripping on my shoes" },
+        { time: 31, line: "But when he loves me, I feel like I'm floating" },
+        { time: 40, line: "When he calls me pretty, I feel like somebody" },
+        { time: 49, line: "Even when we fade eventually to nothing" },
+        { time: 57, line: "You will always be my favorite form of loving" }
+      ]},
+      { title: "Those Eyes", artist: 'Eye West', file: 'audio/those_eyes.mp3', cover:'', lyrics:[
+        { time: 0, line:"When I look into those eyes" },
+        { time: 12, line:"I can’t hide my feelings" }
+      ]},
+      { title: 'About You', artist:'The 1975', file: 'audio/about_you.mp3', cover:'', lyrics:[
+        { time:0, line:"Do you think about me too?" }
+      ]},
+      { title: 'The Only Exception', artist:'Paramore', file:'audio/the_only_exception.mp3', cover:'', lyrics:[
+        { time:0, line:"You are the only exception" }
+      ]},
+      { title: 'Sila', artist:'Sud', file:'audio/sila.mp3', cover:'', lyrics:[
+        { time:0, line:"Oh, sila ang dahilan" }
+      ]},
+      { title: 'Best Part', artist:'Daniel Caesar', file:'audio/best_part.mp3', cover:'', lyrics:[
+        { time:0, line:"You're the best part" }
+      ]},
+      { title: 'Pretty Boy', artist:'The Neighbourhood', file:'audio/pretty_boy.mp3', cover:'', lyrics:[
+        { time:0, line:"Pretty boy, don’t be sad" }
+      ]}
+    ];
+
+    const audio = new Audio();
+    audio.preload = 'metadata';
+
+    let current = 0;
+    let isPlaying = false;
+
+    const vinyl = document.getElementById('vinyl');
+    const needle = document.getElementById('needle');
+    const trackTitle = document.getElementById('track-title');
+    const trackArtist = document.getElementById('track-artist');
+    const trackListEl = document.getElementById('trackList');
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = progressBar.querySelector('i');
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationEl = document.getElementById('duration');
+    const lyricsLine = document.getElementById('lyricsLine');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+
+    function loadTrack(i){
+      const t = tracks[i];
+      audio.src = t.file;
+      trackTitle.textContent = t.title;
+      trackArtist.textContent = t.artist;
+      document.getElementById('label-title').textContent = t.title;
+      document.getElementById('label-artist').textContent = t.artist;
+      document.querySelectorAll('.track-item').forEach((el, idx)=>{
+        el.classList.toggle('active', idx===i);
+      });
+      lyricsLine.textContent = (t.lyrics && t.lyrics.length) ? t.lyrics[0].line : 'No lyrics for this track.';
+    }
+
+    function play(){
+      audio.play().then(()=>{
+        isPlaying = true;vinyl.classList.add('playing');needle.classList.add('playing');playBtn.textContent='⏸';
+      }).catch(e=>{console.warn('play failed',e);});
+    }
+    function pause(){
+      audio.pause();isPlaying=false;vinyl.classList.remove('playing');needle.classList.remove('playing');playBtn.textContent='▶︎';}
+
+    playBtn.addEventListener('click',()=>{
+      if(!audio.src) loadTrack(current);
+      isPlaying?pause():play();
+    });
+
+    prevBtn.addEventListener('click',()=>{current=(current-1+tracks.length)%tracks.length;loadTrack(current);if(isPlaying)play();});
+    nextBtn.addEventListener('click',()=>{current=(current+1)%tracks.length;loadTrack(current);if(isPlaying)play();});
+    shuffleBtn.addEventListener('click',()=>{shuffle();});
+
+    progressBar.addEventListener('click',(e)=>{
+      const rect = progressBar.getBoundingClientRect();
+      const x = e.clientX-rect.left;const pct = x/rect.width;audio.currentTime = pct*audio.duration;
+    });
+
+    audio.addEventListener('timeupdate',()=>{
+      if(!audio.duration) return;
+      const pct = (audio.currentTime/audio.duration)*100;progressFill.style.width = pct+'%';
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+      syncLyrics();
+    });
+    audio.addEventListener('loadedmetadata',()=>{durationEl.textContent = formatTime(audio.duration);});
+    audio.addEventListener('ended',()=>{nextBtn.click();});
+
+    function formatTime(sec){if(!sec||isNaN(sec))return '0:00';sec=Math.floor(sec);const m=Math.floor(sec/60);const s=String(sec%60).padStart(2,'0');return `${m}:${s}`}
+
+    function renderPlaylist(){
+      trackListEl.innerHTML='';
+      tracks.forEach((t, i)=>{
+        const item = document.createElement('div');item.className='track-item';
+        item.innerHTML = `<div class="thumb">${t.title.charAt(0).toUpperCase()}</div><div class="meta"><b>${t.title}</b><span>${t.artist}</span></div>`;
+        item.addEventListener('click',()=>{current=i;loadTrack(i);play();});
+        trackListEl.appendChild(item);
+      });
+    }
+
+    function syncLyrics(){
+      const t = tracks[current];
+      if(!t.lyrics) return;
+      for(let i=t.lyrics.length-1;i>=0;i--){
+        if(audio.currentTime >= t.lyrics[i].time){
+          if(lyricsLine.textContent !== t.lyrics[i].line){
+            lyricsLine.style.opacity=0;
+            setTimeout(()=>{
+              lyricsLine.textContent=t.lyrics[i].line;
+              lyricsLine.style.opacity=1;
+            },200);
+          }
+          break;
+        }
+      }
+    }
+
+    function shuffle(){
+      for(let i=tracks.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[tracks[i],tracks[j]]=[tracks[j],tracks[i]]}
+      renderPlaylist();current=0;loadTrack(0);
+      if(isPlaying)play();
+    }
+
+    renderPlaylist();
+    loadTrack(0);
+    window.addEventListener('keydown',(e)=>{if(e.code==='Space'){e.preventDefault();playBtn.click()} if(e.code==='ArrowRight'){nextBtn.click()} if(e.code==='ArrowLeft'){prevBtn.click()}});
+  </script>
+</body>
+</html>
