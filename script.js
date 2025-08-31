@@ -34,7 +34,7 @@ function updatePasscodeDisplay() {
 function checkPasscode() {
     if (currentPasscode === correctPasscode) {
         // Redirect to another webpage
-        window.location.href = "index.html"; // change this to your link
+        window.location.href = "homepage.html"; // change this to your link
     } else {
         // Show error in title
         const title = document.getElementById('passcodeTitle');
