@@ -1553,7 +1553,7 @@ body {
 }
 
 .letter-content.revealed {
-    max-height: 600px;
+    max-height: 7500px;
     opacity: 1;
     padding: 60px 40px;
 }
